@@ -1,0 +1,63 @@
+
+img{
+    margin-right: 30px;
+    margin-left: 30px;
+    border: azure 3px solid;
+    padding: 3px;
+}
+body{
+    font-family: 'Times New Roman', Times, serif;
+    color: rgb(219, 219, 219);
+    background-color: black;
+}
+h1{
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    color: aliceblue;
+    text-align: center;
+}
+h2{
+    text-align: center;
+    color: antiquewhite;
+}
+.video-container{
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+a:hover{
+    text-decoration: overline;
+}
+a{
+    color: beige;
+    font-size: 110%;
+}
+.common{
+    position: absolute;
+    padding: 5px;
+    margin: 5px;
+}
+ul>li:hover{
+    text-decoration: underline;
+    background-color: rgb(114, 110, 110);
+}
+.rizz{
+    font-size: larger;
+    color: aliceblue;
+    text-align: center;
+}
+.rizz:hover{
+    font-size: 200%;
+    color: darkkhaki;
+    border: 5px gold dashed;
+}
+a:visited{
+    color: rgb(253, 253, 223);
+}
+h3{
+    color: beige;
+}
+.nav{
+    z-index: 1;
+    position: relative;
+    float: right;
+}

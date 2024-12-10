@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sudoku Solver</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    td {
+      border: 1px solid black;
+      width: 30px;
+      height: 30px;
+      text-align: center;
+    }
+    input {
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      font-size: 16px;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sudoku Solver</h1>
+  <form id="sudoku-form">
+    <table id="sudoku-board"></table>
+    <div class="controls">
+      <button type="button" id="solve">Solve</button>
+      <button type="button" id="reset">Reset</button>
+      <input type="hidden" id="board-state" name="boardState">
+    </div>
+  </form>
+
+  <script>
+    const BOARD_SIZE = 9;
+
+    // Helper to deep clone a board
+    function deepCloneBoard(board) {
+      return board.map(row => [...row]);
+    }
+
+    // Generate a complete Sudoku board
+    function generateCompleteBoard() {
+      const board = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(0));
+      solveSudoku(board); // Generate a valid solution
+      return board;
+    }
+
+    // Remove numbers to create a playable board with exactly 40 pre-filled numbers
+    function generatePlayableBoard() {
+      const completeBoard = generateCompleteBoard();
+      const playableBoard = deepCloneBoard(completeBoard);
+      let removedCount = 0;
+
+      while (removedCount < BOARD_SIZE * BOARD_SIZE - 40) {
+        const row = Math.floor(Math.random() * BOARD_SIZE);
+        const col = Math.floor(Math.random() * BOARD_SIZE);
+
+        if (playableBoard[row][col] !== 0) {
+          playableBoard[row][col] = 0;
+          removedCount++;
+        }
+      }
+
+      return playableBoard;
+    }
+
+    // Check if placing a number in a cell is valid
+    function isValid(board, row, col, num) {
+      for (let i = 0; i < BOARD_SIZE; i++) {
+        if (board[row][i] === num || board[i][col] === num ||
+            board[Math.floor(row / 3) * 3 + Math.floor(i / 3)][Math.floor(col / 3) * 3 + (i % 3)] === num) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // Solve the Sudoku board
+    function solveSudoku(board) {
+      for (let row = 0; row < BOARD_SIZE; row++) {
+        for (let col = 0; col < BOARD_SIZE; col++) {
+          if (board[row][col] === 0) {
+            for (let num = 1; num <= BOARD_SIZE; num++) {
+              if (isValid(board, row, col, num)) {
+                board[row][col] = num;
+                if (solveSudoku(board)) {
+                  return true;
+                }
+                board[row][col] = 0;
+              }
+            }
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    // Render the Sudoku board
+    function renderBoard(board) {
+      const table = document.getElementById('sudoku-board');
+      table.innerHTML = '';
+
+      for (let row = 0; row < BOARD_SIZE; row++) {
+        const tr = document.createElement('tr');
+
+        for (let col = 0; col < BOARD_SIZE; col++) {
+          const td = document.createElement('td');
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.maxLength = 1;
+
+          if (board[row][col] !== 0) {
+            input.value = board[row][col];
+            input.disabled = true;
+          }
+
+          td.appendChild(input);
+          tr.appendChild(td);
+        }
+
+        table.appendChild(tr);
+      }
+
+      updateBoardStateInput(board);
+    }
+
+    // Update the hidden input with the current board state
+    function updateBoardStateInput(board) {
+      const boardStateInput = document.getElementById('board-state');
+      boardStateInput.value = JSON.stringify(board);
+    }
+
+    // Extract the current board state from inputs
+    function extractBoard() {
+      const inputs = document.querySelectorAll('#sudoku-board input');
+      const board = [];
+
+      for (let i = 0; i < inputs.length; i += BOARD_SIZE) {
+        board.push(
+          Array.from(inputs)
+            .slice(i, i + BOARD_SIZE)
+            .map(input => (input.value === '' ? 0 : parseInt(input.value, 10)))
+        );
+      }
+
+      return board;
+    }
+
+    // Initialize
+    let originalPlayableBoard = generatePlayableBoard();
+    renderBoard(originalPlayableBoard);
+
+    // Solve button functionality
+    document.getElementById('solve').addEventListener('click', () => {
+      const board = deepCloneBoard(originalPlayableBoard); // Use the original playable board
+      if (solveSudoku(board)) {
+        renderBoard(board);
+      } else {
+        alert('No solution exists for this board!');
+      }
+    });
+
+    // Reset button functionality
+    document.getElementById('reset').addEventListener('click', () => {
+      originalPlayableBoard = generatePlayableBoard(); // Generate a new board
+      renderBoard(originalPlayableBoard);
+    });
+  </script>
+</body>
+</html>
+
